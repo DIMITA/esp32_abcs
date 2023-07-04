@@ -3,6 +3,7 @@
 namespace App\Command;
 
 use App\Entity\Device;
+use App\Entity\ServerSettings;
 use App\Entity\TimeSeries;
 use App\Entity\UplinkMessages;
 use App\Repository\DeviceRepository;
@@ -47,18 +48,40 @@ class ReqSyncnetworkCommand extends Command
     {
         $client = HttpClient::create();
 
+        $serverSettings = $this->em->getRepository(ServerSettings::class)->findAll();
+        $serverSetting = null;
+        $lastupdate = null;
+        $query = null;
+        if (!empty($serverSetting)) {
+            $serverSetting = $serverSettings[0];
+            $lastupdate = $serverSetting[0]->getLastConnection();
+        } else {
+            $serverSetting = new ServerSettings();
+            $serverSetting->setUrl($this->url);
+        }
+
+        if ($lastupdate !== null) {
+            $query = array(
+                'after' => $lastupdate,
+            );
+        }
+
+
+        $url = $this->url . ($query != null ? ('?' .  http_build_query($query ?? array())) : '');
+
         $response = $client->request(
             'GET',
-            $this->url,
+            $url,
             ['auth_bearer' => $this->key]
         );
         $io = new SymfonyStyle($input, $output);
+
 
         $contentArray = explode("\n", $response->getContent());
 
         foreach ($contentArray as $value) {
             $resp = null !== json_decode($value) ? json_decode($value)->{"result"} : null;
-            var_dump($resp);
+
             if (isset($resp)) {
 
                 $device = $this->em->getRepository(Device::class)->findByFonctionnalityId($resp->{"end_device_ids"}->{"dev_eui"})[0];
@@ -90,6 +113,10 @@ class ReqSyncnetworkCommand extends Command
                 }
             }
         }
+
+        $serverSetting->setLastConnection(new DateTime());
+        $this->em->persist($serverSetting);
+        $this->em->flush();
 
         $arg1 = $input->getArgument('arg1');
 
