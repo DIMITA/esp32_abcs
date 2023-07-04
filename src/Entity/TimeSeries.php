@@ -6,9 +6,14 @@ use ApiPlatform\Metadata\ApiResource;
 use App\Repository\TimeSeriesRepository;
 use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
+use ApiPlatform\Metadata\ApiFilter;
+use ApiPlatform\Doctrine\Orm\Filter\DateFilter;
+use ApiPlatform\Doctrine\Orm\Filter\SearchFilter;
 
 #[ORM\Entity(repositoryClass: TimeSeriesRepository::class)]
 #[ApiResource]
+#[ApiFilter(DateFilter::class, properties: ['dateTimeOffset'])]
+#[ApiFilter(SearchFilter::class, properties: ['name' => 'exact'])]
 class TimeSeries
 {
     #[ORM\Id]
