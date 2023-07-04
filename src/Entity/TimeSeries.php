@@ -11,7 +11,7 @@ use ApiPlatform\Doctrine\Orm\Filter\DateFilter;
 use ApiPlatform\Doctrine\Orm\Filter\SearchFilter;
 
 #[ORM\Entity(repositoryClass: TimeSeriesRepository::class)]
-#[ApiResource]
+#[ApiResource(paginationEnabled: false)]
 #[ApiFilter(DateFilter::class, properties: ['dateTimeOffset'])]
 #[ApiFilter(SearchFilter::class, properties: ['name' => 'exact'])]
 class TimeSeries
