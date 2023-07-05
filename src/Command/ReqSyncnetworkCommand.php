@@ -52,22 +52,16 @@ class ReqSyncnetworkCommand extends Command
         $serverSetting = null;
         $lastupdate = null;
         $query = null;
-        if (!empty($serverSetting)) {
+        if (!empty($serverSettings)) {
             $serverSetting = $serverSettings[0];
-            $lastupdate = $serverSetting[0]->getLastConnection();
+            $lastupdate = $serverSetting->getLastConnection();
         } else {
             $serverSetting = new ServerSettings();
             $serverSetting->setUrl($this->url);
         }
 
-        if ($lastupdate !== null) {
-            $query = array(
-                'after' => $lastupdate,
-            );
-        }
-
-
-        $url = $this->url . ($query != null ? ('?' .  http_build_query($query ?? array())) : '');
+        $url = $query != null ? $this->url . '?after=' .  $lastupdate->format('Timezone') : $this->url;
+        dd($url);
 
         $response = $client->request(
             'GET',

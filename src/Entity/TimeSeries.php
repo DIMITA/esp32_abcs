@@ -7,11 +7,23 @@ use App\Repository\TimeSeriesRepository;
 use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
 use ApiPlatform\Metadata\ApiFilter;
+use ApiPlatform\Metadata\Get;
+use ApiPlatform\Metadata\Post;
+use ApiPlatform\Metadata\GetCollection;
 use ApiPlatform\Doctrine\Orm\Filter\DateFilter;
 use ApiPlatform\Doctrine\Orm\Filter\SearchFilter;
+use App\Controller\Esp32PostController;
 
 #[ORM\Entity(repositoryClass: TimeSeriesRepository::class)]
-#[ApiResource()]
+#[ApiResource(operations: [
+    new Get(),
+    new GetCollection(paginationEnabled: true),
+    new Post(
+        name: 'publication',
+        uriTemplate: '/times_series/',
+        controller: Esp32PostController::class
+    )
+])]
 #[ApiFilter(DateFilter::class, properties: ['dateTimeOffset'])]
 #[ApiFilter(SearchFilter::class, properties: ['name' => 'exact'])]
 class TimeSeries
