@@ -60,8 +60,10 @@ class ReqSyncnetworkCommand extends Command
             $serverSetting->setUrl($this->url);
         }
 
-        $url = $query != null ? $this->url . '?after=' .  $lastupdate->format('Timezone') : $this->url;
-        dd($url);
+        var_dump($query);
+
+        $url = $lastupdate != null ? $this->url . '?after=' .  $lastupdate->format('Y-m-d\TH:i:s\Z') : $this->url;
+
 
         $response = $client->request(
             'GET',
